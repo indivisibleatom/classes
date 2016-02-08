@@ -1,0 +1,1 @@
+ipython nbconvert --to PDF --template=clean_report.tplx <notebook>
