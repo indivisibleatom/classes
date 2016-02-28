@@ -3,8 +3,8 @@
 from sklearn import tree
 
 class DecisionTree(object):
-    def __init__(self):
-        self.tree = tree.DecisionTreeClassifier()
+    def __init__(self, maxDepth):
+        self.tree = tree.DecisionTreeClassifier(max_depth=maxDepth)
 
     def train(self, dataMatrix, classVector):
         self.tree.fit(dataMatrix, classVector)

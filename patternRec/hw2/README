@@ -1,0 +1,17 @@
+Running instructions:
+
+There are four python files:
+bag_wine
+bag_mnist
+boost_mnist
+boost_office
+
+Run each of these from top to bottom (run all cell) for the desired results.
+Change the folder structure in dataSetManager.py in case you have a different
+directory structure from the following:
+hw2
+  MNIST
+  office
+  wine
+
+
