@@ -12,3 +12,6 @@ class DecisionTree(object):
     def predict(self, dataMatrix):
         return self.tree.predict(dataMatrix)
 
+    def predictProbabilities(self, dataMatrix):
+        return self.tree.predict_proba(dataMatrix)
+
