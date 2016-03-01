@@ -2,6 +2,7 @@
 import numpy as np
 import numpy.ma as ma
 import pandas
+import math
 import helpers
 from scipy.stats import mstats
 from decisionTree import DecisionTree
@@ -28,50 +29,64 @@ class RandomForest(object):
   # Returns dataIndex X mislabelIndex X correctlabelIndex
   def getMislabelSet(self, dataIndices, classVectors):
     classes = pandas.unique(classVectors)
-    mislabelArray = np.repeat(np.arange(classes.size), dataIndices.size)
-    correctLabelRepeated = np.tile(np.where(classes == classVectors.values),
-                                   classes.size)
-    mislabelArray = mislabelArray[mislabelArray != correctLabelRepeated]
+    mislabelMask = [classes != classVector[1] for classVector in
+                    np.ndenumerate(classVectors.values)]
+    mislabelMask = np.stack(mislabelMask)
+    mislabelMask = mislabelMask.flatten();
+    mislabelArray = np.tile(np.arange(classes.shape[0]), dataIndices.size);
+    labelArray = mislabelArray[~mislabelMask]
+    labelArray = np.repeat(labelArray, classes.size - 1)
+    mislabelArray = mislabelArray[mislabelMask]
+    #Debug
+    #for index in np.arange(dataIndices.size):
+    #    print(mislabelMask[3*index:3*index+3],
+    #          mislabelArray[3*index:3*index+3],
+    #          labelArray[3*index:3*index+3])
     mislabelSet = np.transpose([np.tile(dataIndices, classes.size - 1),
-                               mislabelArray,
-                               np.tile(np.where(classes == classVectors.values),
-                               classes.size - 1)])
-    print(np.where(classes == classVectors.values[10000]))
+                               mislabelArray, labelArray])
     return mislabelSet
 
   def calculatePseudoLoss(self, tree, dataMatrix, mislabels, distribution):
     probs = tree.predictProbabilities(dataMatrix.iloc[mislabels[:,0]])
-    probsIncorrect = probs[:,mislabels[:,1]]
-    probsCorrect = probs[:,mislabels[:,2]]
-    loss = 0.5 * sum(distribution * (1 - probs[:,2] + probs[:,1]))
+    probsIncorrect = np.choose(mislabels[:,1], probs.T)
+    probsCorrect = np.choose(mislabels[:,2], probs.T)
+    loss = 0.5 * sum(distribution * (1 - probsCorrect + probsIncorrect))
     return loss
 
-  def updateDistribution(self, dataMatrix, mislabels, distribution, beta):
+  def updateDistribution(self, tree, dataMatrix, mislabels, distribution, beta):
     probs = tree.predictProbabilities(dataMatrix.iloc[mislabels[:,0]])
-    power = (0.5 * sum(distribution * (1 + probs[:,2] - probs[:,1])))
-    distribution = distribution * (beta ^ power)
+    probsIncorrect = np.choose(mislabels[:,1], probs.T)
+    probsCorrect = np.choose(mislabels[:,2], probs.T)
+    power = (0.5 * sum(distribution * (1 + probsCorrect - probsIncorrect)))
+    distribution = distribution * (np.power(beta,power))
+    distribution = helpers.toProbDistribution(distribution)
+    return distribution
 
   def trainBoosted(self, dataMatrix, classVectors):
     mislabels = self.getMislabelSet(np.arange(
                  dataMatrix.shape[0]), classVectors)
     distribution = np.ones(mislabels.shape[0])
     distribution = helpers.toProbDistribution(distribution)
-    numToBag = int(helpers.HyperParams.FRAC_PER_BAG * mislabels.shape[0])
-    mislabelIndices = helpers.bag(np.arange(mislabels.shape[0]),
-                                  numToBag, distribution)
+    numToBag = int(mislabels.shape[0])
+
     for tree in self.trees:
+        mislabelIndices = helpers.bag(np.arange(mislabels.shape[0]),
+                                  numToBag, distribution)
         tree.train(dataMatrix.iloc[mislabels[mislabelIndices][:,0]],
                    classVectors.iloc[mislabels[mislabelIndices][:,0]])
         loss = self.calculatePseudoLoss(tree, dataMatrix,
                                         mislabels, distribution)
         beta = loss/(1-loss)
         self.boostedBeta.append(beta)
-        distribution = self.updateDistribution(dataMatrix, mislabels,
+        distribution = self.updateDistribution(tree, dataMatrix, mislabels,
                                                distribution, beta)
 
   def predictBoosted(self, dataMatrix):
-    predictions = sum([-log(beta) * tree.predictProbabilities(dataMatrix)
-                     for tree,beta in zip(self.trees,self.boostedBeta)])
+    predictions = np.sum(np.stack([-math.log(beta) *
+                  tree.predictProbabilities(dataMatrix)
+                  for tree,beta in zip(self.trees,self.boostedBeta)]), axis=0)
+    predictions = np.argmax(predictions, axis=1)
+    return predictions
 
   # Make out of bag predictions using cached training data
   def predictOutOfBagTraining(self):
