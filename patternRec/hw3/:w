@@ -41,20 +41,8 @@ def getCrossValidationIterator(n, n_folds):
 #Given a 3D array representing a gridded state table, with a[x,y,:] 
 #corresponding to probabilities at state x,y, plots them in the figure using a
 # stacked bar chart at x,y
-def plotLatticeStackedProbabilities(array, colors):
+def plotLatticeStackedProbabilities(array):
     fig = plt.figure()
     increments = np.asarray((1,1))/np.asarray(array.shape[:2])
     for index in np.ndindex(array.shape[:2]):
-        rect = tuple(np.asarray(index)*increments) + tuple(increments)
-        ax = fig.add_axes(rect)
-        cumsum = 0
-        for indexProbs in np.arange(array.shape[-1]):
-            probability = array[index+(indexProbs,)]
-            ax.bar(0, probability, 1, color=colors[indexProbs],
-                   bottom = cumsum)
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            cumsum += probability
-        #Fill up the slot with filler color if probs don't sum to 1
-        ax.bar(0, 1-cumsum, 1, color=colors[-1], bottom = cumsum)
-
+        ax = fig.add

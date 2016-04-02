@@ -12,13 +12,13 @@ class WineDatasetManager(object):
     def __init__(self):
         self.trainingData = ()
         self.testingData = ()
-        self.loadData()
 
-    def loadData(self):
+    @staticmethod
+    def loadData():
         readData = pandas.read_csv(WineDatasetManager.path, names =
                                    WineDatasetManager.headers)
         readData.dropna(how='all', inplace='True')
-        self.data = readData
+        WineDatasetManager.data = readData
 
     def populateTrainTest(self, percentTraining):
         self.trainingData, self.testingData = train_test_split(self.data)
@@ -31,39 +31,24 @@ class MNISTDatasetManager(object):
     def __init__(self):
         self.trainingData = ()
         self.testingData = ()
-        self.loadData()
 
-    def loadData(self):
-        self.dataTrain = pandas.read_csv(
+    @staticmethod
+    def loadData():
+        MNISTDatasetManager.dataTrain = pandas.read_csv(
                           MNISTDatasetManager.pathTrain, header=None)
-        self.dataTest = pandas.read_csv(
+        MNISTDatasetManager.dataTest = pandas.read_csv(
                           MNISTDatasetManager.pathTest, header=None)
 
     def populateTrainTest(self):
-        self.trainingData = self.dataTrain.transpose()
-        self.testingData = self.dataTest.transpose()
+        self.trainingData = MNISTDatasetManager.dataTrain.transpose()
+        self.testingData = MNISTDatasetManager.dataTest.transpose()
+
+def loadDataSets():
+    WineDatasetManager.loadData()
+    MNISTDatasetManager.loadData()
 
 class RobotDatasetManager(object):
-    pathTrain = "Robot/robot_train.data"
-    pathTest = "Robot/robot_test.data"
+    path = "Robot
 
-    def __init__(self):
-        self.trainingData = self.readData(RobotDatasetManager.pathTrain)
-        self.testingData = self.readData(RobotDatasetManager.pathTest)
-
-    def readData(self, path):
-        f = open(path, 'r')
-        walks = []
-        currentList = []
-        for line in f:
-            if line == "." or line ==".\n":
-                walks.append(currentList)
-                currentList = []
-            else:
-                i,j,c = line[0],line[2],line[4]
-                currentList.append((int(i)-1,int(j)-1,c))
-        #Patch up files that don't have terminal dot
-        if line != "." and line !=".\n":
-            walks.append(currentList)
-        return walks
-
+#Perform these on import
+loadDataSets()
