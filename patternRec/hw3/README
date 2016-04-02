@@ -6,17 +6,24 @@ Dependencies apart from the standard stuff -- I use the metric-learn module
 the bottleneck module (http://pypi.python.org/pypi/Bottleneck) for partitioning
 the distances to the training set about the k-th element.
 
-There are three files:
+These are the three ipython notebooks:
 knn_wine
 knn_mnist
 knn_office
 
-Run each of these from top to bottom (run all cells) for the desired results
-for the corresponding dataset. Change the folder structure in dataSetManager.py
-in case you have a different directory structure from the following:
+HMM:
+There is one ipython notebook:
+hmm
+
+Common instructions:
+Run each of the notebooks from top to bottom (run all cells) for the desired
+results for the corresponding dataset. Change the folder structure in
+dataSetManager.py in case you have a different directory structure from the
+following:
+
 hw3
   MNIST
   office
   wine
-
+  Robot
 

@@ -92,4 +92,39 @@ the LMNN algorithms of metric-learn errors out --- in this case, I've capped
 the range of k's tried to the minimum number of training data-points for any
 class.
 
+\section{HMM}
+\subsection{Methodology}
+\emph{Modeling:} The training data can be used to constuct the HMM model for
+the robot's walks.  Each square in the 4 $\times$ 4 world corresponds to a HMM
+state. It is known that the transition probabilities for the non Von-Neumann
+neighborhood states (if the states are arranged in a 4 $\times$ 4 matrix) is
+zero. The transition probabilities from a particular state to its Von-Neumann
+neighbors and to the state itself (to account for black cells) can be computed
+using the training data by frequency counting of the transitions. Notationally:
+
+\begin{equation}
+a_{ij} = \frac{\#i \rightarrow j}{\sum_{k=1}^{n}\#i \rightarrow k}
+\end{equation}
+
+Here we use some of the notation from~\cite{rabiner1989tutorial} for the matrix
+of state transition probabilities, and $\#i \rightarrow j$ stands for the
+number of times a transition from state i is made to state j. Thus, the
+transition matrix can be determined --- this is known to be sparse and thus,
+the computations can be made computationally efficient.
+
+The observation at each state if one of the colors $\{r, g, b, y\}$. The
+observation can be modeled as a discrete random variable and the probability
+distribution for each state can be found by a similar frequency counting of the
+training data as for the transition matrix computation. The initial state
+probabilities is computable similarly, thus completing the description of the
+HMM for the experiment. \\
+
+\noindent \emph{Most probable states:}
+
+\subsection{Discussion}
+
+\medskip
+\bibliographystyle{unsrt}
+\bibliography{references}
+
 \end{document}
