@@ -72,25 +72,58 @@ set itself (thus TD = all of training data, TtD = $\{\}$ for MNIST and office
 datasets).
 
 \subsection{Wine dataset}
+\subsubsection{Stability of Cross Validation scores within a TS}
+The cross validation scores for the same sized TS ($R[a,:,c,d]$) are similar to
+each other, as expected. There is very little variation here, with a maximum
+variation in score of 0.017. For the same sized TS, cross validation results
+are stable.
+
+\subsubsection{CV scores variation with TS size}
+The scores are smaller for smaller sized TD (and thus TS), and greater for
+larger sized TD's, as is expected due to larger size of training data being
+available for larger TD's. As stated for the same sized TD's but using
+different values of $n$ and $k$ are observed to be close, suggesting that the
+size of the TS is the most important factor in determining the score. The box
+plots described for the selection of best K can be used to see the variation of
+CV scores with TS size as well. With increasing TS size, the CV scores become
+less varying.
+
+\subsubsection{Best K and associated CV error}
+The best k is eyeballed using the box and whisker's plot. Fig
+\ref{fig:boxplotsWine} has a couple of them for particular values of k. I have
+decided on using k=3 as the best choice. This choice leads to higher scores and
+relatively lower variances, but there is not much that can be stated
+categorically about my choice as some datapoints as missing (see Discussion).
+
+
+\begin{figure}[h]
+  \center{}
+  \includegraphics[width=0.4\textwidth]{images/wineBoxK1.png}
+  \includegraphics[width=0.4\textwidth]{images/wineBoxK2.png}
+  \caption{The box and whisker plots corresponding to k=1(left) and k=3(right)
+    for Wine dataset. Note that some data vectors are missing and the reason
+    for this is explained in the discussion.}
+\label{fig:boxplotsWine} 
+\end{figure}
+
+\subsubsection{Testing vs CV}
+Using 3 as the KNN k, I get an accuracy of $91.1\%$ on the testing data. This
+is most closely correlated with the 5 fold cross validation.
 
 \subsection{MNIST dataset}
 For MNIST, I used PCA to reduce dimensionality, retaining enough principal
-component vectors that explain 80\% of the variance in the data. I feel this
-gives me a good balance between a performant algorithm and execution time. The
-plots for the errors for the two iterations are shown in
-Fig.~\ref{fig:errorsMNIST}.
-
+component vectors that explain 90\% of the variance in the data. I feel this
+gives me a good balance between a performant algorithm and execution time.
 
 \subsection{Discussion}
-Notes to combine: For small dataset such as wine, especially when using a
-smaller subsampled dataset, k-fold cross validation is expected to be extremely
-noisy, more so for smaller k. In some extreme cases, it may be possible that a
-k-fold training set does not contain any data for one class, and thus, no
-testing data would be classified to that class. Alternatively, there could be
-lesser samples in training for a class than the value of `k' and, in this case,
-the LMNN algorithms of metric-learn errors out --- in this case, I've capped
-the range of k's tried to the minimum number of training data-points for any
-class.
+For small dataset such as wine, especially when using a smaller subsampled
+dataset, k-fold cross validation is expected to be extremely noisy, more so for
+smaller k. In some extreme cases, it may be possible that a k-fold training set
+does not contain any data for one class, and thus, no testing data would be
+classified to that class. Alternatively, there could be lesser samples in
+training for a class than the value of `k' and, in this case, the LMNN
+algorithm of metric-learn errors out --- in this case, I've capped the range
+of k's tried to the minimum number of training data-points for any class.
 
 \section{HMM}
 \subsection{Methodology}
@@ -121,7 +154,31 @@ HMM for the experiment. \\
 
 \noindent \emph{Most probable states:}
 
-\subsection{Discussion}
+\subsection{Results}
+
+\noindent \emph{Learned Model:} The start state probabilities, the state
+transition probabilities and the observation symbol probabilities at each state
+was learned using training data as described above. I only visualize the
+observation probabilities that are learned as described below.
+
+\noindent \emph{Observation Probabilities:} The observation probabilities may
+be visualized in a grid for the training data. This is shown in Fig.
+\ref{fig:observationP}. Note that the observation propabilities match closely
+the sample output of the world as given in the assignment statement.
+
+\begin{figure}[h]
+  \center{}
+  \includegraphics[width=0.5\textwidth]{images/observationP.png}
+\caption{The observation probabilities visualized in a grid for the training
+data}
+\label{fig:observationP}
+\end{figure}
+
+\noindent \emph{Hidden State Inference:} Using just the color observation of
+each step of a testing random walk, the learned model is used to infer the
+state transitions that best explain the walk. This problem displays optimal
+substructure, and the Viterbi algorithm provides a dynamic programming solution
+for it.
 
 \medskip
 \bibliographystyle{unsrt}
