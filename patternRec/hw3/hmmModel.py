@@ -45,41 +45,39 @@ class HMMModel(object):
     #Implements the Viterbi dynamic programming algorithm for finding most
     #probable state transitions for given set of algorithms
     def scoreSingle(self, walk):
-        transitionBackTrack = np.zeros((len(walk),4,4),dtype=int)
+        transitionBackTrack = np.zeros((len(walk),4,4),int)
         optStateCurP = np.zeros((4,4))
         optStateCurP = (self.startP *
                  self.observationP[:,:,self.observationSymbols.index(walk[0][2])])
         for idx,o in enumerate(walk[1:]):
-            optStateNewAllPTemp = (optStateCurP * self.transitionP)
-            optStateNewAllP = np.zeros((5,4,4))
+            optStateAllPTemp = (optStateCurP * self.transitionP)
+            optStateNewP = np.zeros((4,4))
             #TODO msati3: Perhaps full transition map would be better as it
             #would allow for parallelization.
-            for index,value in np.ndenumerate(optStateNewAllP):
+            for index,value in np.ndenumerate(optStateAllPTemp):
                 n,x,y = index
                 nt = self.__getNeighborTuple((x,y),n)
-                if (nt[0] > 3 or nt[1] > 3 or nt[0] < 0 or nt[1] < 0):
-                    op = 0
-                else:
+                if not (nt[0] > 3 or nt[1] > 3 or nt[0] < 0 or nt[1] < 0):
                     op = (self.observationP[nt[0], nt[1],
                                            self.observationSymbols.index(o[2])])
-                optStateNewAllP[index] = optStateNewAllPTemp[index] * op
-            optStateCurP = np.amax(optStateNewAllP, axis=0)
-            transitionBackTrack[idx+1] = np.argmax(optStateNewAllP, axis=0)
+                    if (optStateAllPTemp[index] * op >
+                            optStateNewP[nt[0],nt[1]]):
+                       optStateNewP[nt[0],nt[1]] = optStateAllPTemp[index] * op
+                       transitionBackTrack[(idx+1,nt[0],nt[1])] = (
+                       np.ravel_multi_index((x,y),(4,4)))
+            optStateCurP = optStateNewP
         optP = np.amax(optStateCurP)
         optT = np.argmax(optStateCurP)
         optT = np.unravel_index(optT, (4,4))
-        print(optStateCurP, optP, optT)
         optSeq = []
         for idx,val in enumerate(walk):
             optSeq.append(optT)
-            optT = self.__getNeighborTuple(
-                   optT,transitionBackTrack[(-idx,)+optT])
+            transition = (transitionBackTrack[(199-idx,) + optT])
+            optT = np.unravel_index(transition, (4,4))
         score = [1 if predTup == (obs[0],obs[1]) else 0 for predTup,obs in
                  zip(optSeq[::-1], walk)]
         list1 = [(predTup, (obs[0], obs[1])) for
                  predTup, obs in zip(optSeq[::-1], walk)]
-        for elem in list1[190:]:
-            print(elem[0][0]+1, elem[0][1]+1, elem[1][0]+1, elem[1][1]+1)
         return(sum(score)/len(score))
 
     def score(self, walks):

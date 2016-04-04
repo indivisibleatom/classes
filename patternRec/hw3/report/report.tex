@@ -10,6 +10,8 @@
 \maketitle
 
 \section{KNN}
+
+Note --- I have not tested on the office dataset.
 \subsection{Methodology and notation}
 
 I randomly select 20\% of data as test (TtD) and considered the rest as
@@ -71,14 +73,15 @@ separate testing data implies no need for hold out testing from the training
 set itself (thus TD = all of training data, TtD = $\{\}$ for MNIST and office
 datasets).
 
-\subsection{Wine dataset}
-\subsubsection{Stability of Cross Validation scores within a TS}
+\subsection{Results}
+\subsubsection{Wine dataset}
+\noindent \emph{Stability of Cross Validation scores within a TS:}
 The cross validation scores for the same sized TS ($R[a,:,c,d]$) are similar to
 each other, as expected. There is very little variation here, with a maximum
-variation in score of 0.017. For the same sized TS, cross validation results
-are stable.
+variation in score of 0.004. For the same sized TS, cross validation results
+are stable.\\
 
-\subsubsection{CV scores variation with TS size}
+\noindent \emph{CV scores variation with TS size:}
 The scores are smaller for smaller sized TD (and thus TS), and greater for
 larger sized TD's, as is expected due to larger size of training data being
 available for larger TD's. As stated for the same sized TD's but using
@@ -86,15 +89,14 @@ different values of $n$ and $k$ are observed to be close, suggesting that the
 size of the TS is the most important factor in determining the score. The box
 plots described for the selection of best K can be used to see the variation of
 CV scores with TS size as well. With increasing TS size, the CV scores become
-less varying.
+less varying.\\
 
-\subsubsection{Best K and associated CV error}
+\noindent \emph{Best K and associated CV error:}
 The best k is eyeballed using the box and whisker's plot. Fig
 \ref{fig:boxplotsWine} has a couple of them for particular values of k. I have
 decided on using k=3 as the best choice. This choice leads to higher scores and
-relatively lower variances, but there is not much that can be stated
-categorically about my choice as some datapoints as missing (see Discussion).
-
+relatively lower variances as the performance degrades quickly for $k > 3$. I
+feel that k = 1 would be a good choice as well.\\
 
 \begin{figure}[h]
   \center{}
@@ -102,18 +104,22 @@ categorically about my choice as some datapoints as missing (see Discussion).
   \includegraphics[width=0.4\textwidth]{images/wineBoxK2.png}
   \caption{The box and whisker plots corresponding to k=1(left) and k=3(right)
     for Wine dataset. Note that some data vectors are missing and the reason
-    for this is explained in the discussion.}
-\label{fig:boxplotsWine} 
+    for this is explained in the discussion. The three close subplots
+  correspond to 2,5 and 10 fold cross validation respectively.}
+\label{fig:boxplotsWine}
 \end{figure}
 
-\subsubsection{Testing vs CV}
+\noindent \emph{Testing vs CV:}
 Using 3 as the KNN k, I get an accuracy of $91.1\%$ on the testing data. This
-is most closely correlated with the 5 fold cross validation.
+is closely correlated with the 5 fold cross validation, although the small
+size of the dataset means that the results are not without significant noise.
 
-\subsection{MNIST dataset}
+\subsubsection{MNIST dataset}
 For MNIST, I used PCA to reduce dimensionality, retaining enough principal
 component vectors that explain 90\% of the variance in the data. I feel this
 gives me a good balance between a performant algorithm and execution time.
+
+Most of the observations from the wine dataset carry over to MNIST\@.
 
 \subsection{Discussion}
 For small dataset such as wine, especially when using a smaller subsampled
@@ -152,7 +158,11 @@ training data as for the transition matrix computation. The initial state
 probabilities is computable similarly, thus completing the description of the
 HMM for the experiment. \\
 
-\noindent \emph{Most probable states:}
+\noindent \emph{Most probable states:} Using just the color observation of
+each step of a testing random walk, the learned model is used to infer the
+state transitions that best explain the walk. This problem displays optimal
+substructure, and the Viterbi algorithm provides a dynamic programming solution
+for it.
 
 \subsection{Results}
 
@@ -164,7 +174,7 @@ observation probabilities that are learned as described below.
 \noindent \emph{Observation Probabilities:} The observation probabilities may
 be visualized in a grid for the training data. This is shown in Fig.
 \ref{fig:observationP}. Note that the observation propabilities match closely
-the sample output of the world as given in the assignment statement.
+the sample output of the world as given in the assignment statement. \\
 
 \begin{figure}[h]
   \center{}
@@ -174,11 +184,21 @@ data}
 \label{fig:observationP}
 \end{figure}
 
-\noindent \emph{Hidden State Inference:} Using just the color observation of
-each step of a testing random walk, the learned model is used to infer the
-state transitions that best explain the walk. This problem displays optimal
-substructure, and the Viterbi algorithm provides a dynamic programming solution
-for it.
+\noindent \emph{Hidden State Inference:} The average score for the testing data
+for my trained HMM is $81.35\%$. The error is thus around $19\%$.
+
+\subsection{Discussion:}
+The use of sparsity in the problem allows for a memory efficient
+implementation. However, this also makes the implementation difficult to
+parallelize, and seeing an important rationale given by the authors in the
+paper recently discussed in class~\cite{szegedy2015going} for the use of dense
+approximations to sparse networks in action was a key takeaway for me.
+
+I also noticed propagated probability values reaching extremely low values due
+to repeated multiplication, and observed the need for a more robust algorithm
+than the one explained in~\cite{rabiner1986tutorial} that works by
+appropriately scaling the probabilities at each step of the recursion /
+corresponding dynamic programming implementation.
 
 \medskip
 \bibliographystyle{unsrt}
