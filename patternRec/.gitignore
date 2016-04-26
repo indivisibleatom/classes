@@ -2,7 +2,7 @@
 .ipynb_checkpoints*/
 
 # Skip data folder
-data/ 
+data/
 
 # Skip submission archive
 *.zip
