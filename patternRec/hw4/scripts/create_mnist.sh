@@ -11,6 +11,7 @@ echo "Creating training lmdb..."
 
 GLOG_logtostderr=1 $CAFFE_TOOLS/convert_imageset \
     --shuffle \
+    --gray \
     $DATA_ROOT \
     $TRAIN_DATA_ROOT/train.txt \
     $BIN_DIR/mnist_train_lmdb
@@ -19,6 +20,7 @@ echo "Creating testing lmdb..."
 
 GLOG_logtostderr=1 $CAFFE_TOOLS/convert_imageset \
     --shuffle \
+    --gray \
     $DATA_ROOT \
     $TEST_DATA_ROOT/test.txt \
     $BIN_DIR/mnist_test_lmdb
