@@ -1,8 +1,9 @@
 # Jupyter 
 .ipynb_checkpoints*/
 
-# Skip data folder
+# Skip data and bin folders
 data/
+bin/
 
 # Skip submission archive
 *.zip
