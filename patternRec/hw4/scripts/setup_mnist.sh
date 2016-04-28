@@ -2,11 +2,11 @@
 
 mkdir -p bin
 
-if [ -f bin/Sunset_test.txt ]; then
+if [ -f bin/mnist_test.txt ]; then
   rm bin/mnist_test.txt
 fi
 
-if [ -f bin/Sunset_train.txt ]; then
+if [ -f bin/mnist_train.txt ]; then
   rm bin/mnist_train.txt
 fi
 

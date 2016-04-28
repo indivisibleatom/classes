@@ -1,11 +1,18 @@
-rm -r bin
-rm -r logs
+mkdir -p bin
+mkdir -p logs
+mkdir -p snapshots
 
-mkdir bin
-mkdir logs
+CAFFE_TOOLS=${CAFFE_ROOT}/build/tools
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CAFFE_ROOT}/distribute/lib
 
-CAFFE_TOOLS=$CAFFE_ROOT/build/tools
+if [ "${2}" == "--arch1" ]; then
+  LOG_FILE_POSTFIX="${1}1"
+elif [ "${2}" == "--arch2" ]; then
+  LOG_FILE_POSTFIX="${1}2"
+else
+  LOG_FILE_POSTFIX="${1}"
+fi
 
-source scripts/populate_${1}_labels.sh
-source scripts/createLMDB.sh ${1} ${2}
-source scripts/train.sh ${1} 2>&1 | tee logs/train_${1}.log
+source scripts/setup_${1}.sh
+source scripts/createLMDB.sh "$@" 2>&1 | tee logs/train_${LOG_FILE_POSTFIX}.log
+source scripts/train.sh "$@" 2>&1 | tee -a logs/train_${LOG_FILE_POSTFIX}.log

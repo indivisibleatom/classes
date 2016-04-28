@@ -3,34 +3,36 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-def getLossFromTrainingFile(fileName):
+def getKeyValuePairsFromLog(fileName, regex):
     file = open(fileName, 'r')
-    iterations = []
-    losses = []
-    regex = re.compile("Iteration ([0-9]*).*?loss = ([0-9\.]*)")
+    keys = []
+    values = []
+
+    linesPrev = ["","",""]
     for line in file:
-        line = str.strip(line)
-        match = regex.search(line)
-        if match:
-           iterations.append(match.group(1))
-           losses.append(match.group(2))
-    return iterations, losses
+        linesPrev[0] = linesPrev[1]
+        linesPrev[1] = linesPrev[2]
+        linesPrev[2] = str.strip(line)
+        lineCombined = linesPrev[0] + " " + linesPrev[1] + " " + linesPrev[2]
+        match = regex.search(lineCombined)
+        if match and match.group(1) not in keys:
+           keys.append(match.group(1))
+           values.append(match.group(2))
+    return keys, values
+
+def getTrainingLossFromTrainingFile(fileName):
+    regex = re.compile("Iteration ([0-9]*).*Train net.*loss = ([0-9\.]*)" )
+    return getKeyValuePairsFromLog(fileName, regex)
+
+def getTestingLossFromTrainingFile(fileName):
+    file = open(fileName, 'r')
+    regex = re.compile("Iteration ([0-9]*).*Test net.*loss = ([0-9\.]*)")
+    return getKeyValuePairsFromLog(fileName, regex)
 
 def getAccuracyFromTrainingFile(fileName):
     file = open(fileName, 'r')
-    iterations = []
-    accuracies = []
-    regex1 = re.compile("Iteration ([0-9]*).*Testing net")
-    regex2 = re.compile("Test net output.*accuracy = ([0-9\.]*)")
-    for line in file:
-        line = str.strip(line)
-        match1 = regex1.search(line)
-        if match1:
-           iterations.append(match1.group(1))
-        match2 = regex2.search(line)
-        if match2:
-           accuracies.append(match2.group(1))
-    return iterations, accuracies
+    regex = re.compile("Iteration ([0-9]*).*Test net.*accuracy = ([0-9\.]*)")
+    return getKeyValuePairsFromLog(fileName, regex)
 
 #Inspired from online example code
 def showFilterGrid(filters, fGrayscale):

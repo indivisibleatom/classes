@@ -1,15 +1,17 @@
 net: "models/Sunset_train_test.prototxt"
-test_iter: 1000
-test_interval: 4000
-test_initialization: false
-display: 40
-average_loss: 40
-base_lr: 0.01
-lr_policy: "poly"
-power: 0.5
-max_iter: 10000
+
+test_iter: 30
+test_interval: 50
+
+base_lr: 0.000001
+lr_policy: "step"
+gamma: 0.1
+stepsize: 100
+display: 10
+
+max_iter: 1000
 momentum: 0.9
-weight_decay: 0.0002
-snapshot: 10000
-snapshot_prefix: "snapshots/sunset"
+weight_decay: 0.0005
+snapshot: 1000
+snapshot_prefix: "snapshots/Sunset"
 solver_mode: GPU
