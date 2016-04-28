@@ -10,6 +10,6 @@ if [ -f bin/Sunset_train.txt ]; then
   rm bin/mnist_train.txt
 fi
 
-cp data/mnist/train/train.txt > bin/mnist_train.txt
-cp data/mnist/test/test.txt > bin/mnist_test.txt
+cp data/mnist/train/train.txt bin/mnist_train.txt
+cp data/mnist/test/test.txt bin/mnist_test.txt
 
