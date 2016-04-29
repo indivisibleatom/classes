@@ -2,6 +2,9 @@ import sys
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+import lmdb
+import caffe
+from sklearn.metrics import confusion_matrix
 
 def getKeyValuePairsFromLog(fileName, regex):
     file = open(fileName, 'r')
@@ -34,7 +37,21 @@ def getAccuracyFromTrainingFile(fileName):
     regex = re.compile("Iteration ([0-9]*).*Test net.*accuracy = ([0-9\.]*)")
     return getKeyValuePairsFromLog(fileName, regex)
 
-#Inspired from online example code
+#Inspiration: https://www.snip2code.com/Snippet/559026/Caffe-script-to-compute-accuracy-and-con
+#Read lmdb that is written by convert_imageset (which essentially serializes
+#the data to the Datum type defined in caffe.proto)
+def lmdb_reader(lmdb_env):
+    lmdb_transaction = lmdb_env.begin()
+    lmdb_cursor = lmdb_transaction.cursor()
+
+    for key, value in lmdb_cursor:
+        data = caffe.proto.caffe_pb2.Datum()
+        data.ParseFromString(value)
+        label = int(data.label)
+        image = caffe.io.datum_to_array(data).astype(np.uint8)
+        yield(key, image, label)
+
+#Inspired from caffe examples
 def showFilterGrid(filters, fGrayscale):
     tiledImage = (filters - filters.min()) / (filters.max() - filters.min())
     numGrids = int(np.ceil(np.sqrt(filters.shape[0])))
@@ -52,3 +69,20 @@ def showFilterGrid(filters, fGrayscale):
     else:
         plt.imshow(tiledImage)
     plt.axis('off')
+
+def getConfusionMatrix(groundTruth, predictions):
+    return confusion_matrix(groundTruth, predictions)
+
+#Copied from scikit learn examples =>
+#http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+def showConfusionMatrix(cm, labels, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(labels))
+    plt.xticks(tick_marks, labels)
+    plt.yticks(tick_marks, labels)
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
