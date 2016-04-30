@@ -9,9 +9,9 @@ gamma: 0.1
 stepsize: 100
 display: 10
 
-max_iter: 1000
+max_iter: 5000
 momentum: 0.9
 weight_decay: 0.0005
-snapshot: 1000
+snapshot: 5000
 snapshot_prefix: "snapshots/Sunset"
 solver_mode: GPU

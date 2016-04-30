@@ -22,20 +22,24 @@ I used the CAFFE framework~\cite{jia2014caffe} for my implementation.
 
 \section{MNIST Dataset}
 I trained two CNN architectures on the MNIST dataset
-(Fig.~\ref{fig:mnist_architectures}). For the first architecture, I have a
-baseline training loss of 2.41 and a baseline test accuracy of 0.1167 and I
-obtain a final accuracy of $99.03\%$. Getting good numbers on the first
+(Fig.~\ref{fig:mnist_architectures}). For the first architecture, starting with
+a baseline training loss of 2.37 and a baseline test accuracy of 0.089, I
+obtain a final accuracy of $99.01\%$. Getting good numbers on the first
 architecture, I wanted to simplify the second architecture. Thus, the second
-architecture is essentially the first architecture with XXa. For the second
-architecture, I have a baseline training loss of $XX$ and a baseline test
-accuracy of $XX$ and obtain a final accuracy of $XX$. The training progress is
-shown in Fig.~\ref{fig:mnist_learning}.  As I did not manually tweak
-hyper-parameters, I feel it was sufficient have directly using the provided
-test set during the testing phase instead of performing hold out validation.
-The kernels learned from the first and second convolutional layers are
-visualized in Fig.~\ref{fig:mnist_kernels}. The confusion matrices of the two
-architectures are shown in Fig.~\ref{fig:mnist_confusion}, and a few incorrectly
-classified images are shown in Fig.~\ref{fig:mnist_incorrect}.
+architecture is essentially the first architecture with lesser number of
+weights being learnt, one max pooling layer removed, and with the addition of a
+dropout layer. I train this architecture for a greater number of iterations
+(40,000, in batches of 64, as opposed to 10,000 iterations with the same batch
+size for the first architecture). For the second architecture, starting with a
+baseline training loss of $2.31$ and a baseline test accuracy of $0.097$, I
+obtain a final accuracy of $99.03\%$. The training progress is shown in
+Fig.~\ref{fig:mnist_learning}.  As I did not manually tweak hyper-parameters, I
+feel it was sufficient have directly using the provided test set during the
+testing phase instead of performing hold out validation.  The kernels learned
+from the first and second convolutional layers are visualized in
+Fig.~\ref{fig:mnist_kernels}. The confusion matrices of the two architectures
+are shown in Fig.~\ref{fig:mnist_confusion}, and a few incorrectly classified
+images are shown in Fig.~\ref{fig:mnist_incorrect}.
 
 The following are the gradient descent equations:
 
@@ -50,13 +54,20 @@ The following are the gradient descent equations:
 
 \begin{figure}[T]
   \centering{}
+  \raisebox{-0.5\height}{
   \includegraphics[width=0.35\textwidth]{images/mnist_kernels11.png}
+  }
+  \raisebox{-0.5\height}{
   \includegraphics[width=0.5\textwidth]{images/mnist_kernels12.png}
-  \includegraphics[width=0.3\textwidth]{images/mnist_kernels21.png}
+  }
+
+  \vspace{0.5cm}
+  \includegraphics[width=0.35\textwidth]{images/mnist_kernels21.png}
   \includegraphics[width=0.5\textwidth]{images/mnist_kernels22.png}
   \caption{The learned filters for the first and some of the learned filters
   for the second convolutional layers of the first (top row) and second
-  (bottom row) architectures.}
+  (bottom row) architectures. Global contrast normalization is performed for
+  the second layer filters for improved visualization.}
 \label{fig:mnist_kernels}
 \end{figure}
 
@@ -64,12 +75,12 @@ The following are the gradient descent equations:
   \centering{}
   \includegraphics[width=0.4\textwidth]{images/mnist_confusion1.png}
   \includegraphics[width=0.4\textwidth]{images/mnist_confusion2.png}
-  \caption{Confusion matrix for the first (left) and second (right) 
+  \caption{Confusion matrix for the first (left) and second (right)
   architectures.}
 \label{fig:mnist_confusion}
 \end{figure}
 
-\begin{figure}[T]
+\begin{figure}[h]
   \centering{}
   \includegraphics[width=0.4\textwidth]{images/mnist_incorrect1.png}
   \includegraphics[width=0.4\textwidth]{images/mnist_incorrect2.png}
@@ -83,7 +94,7 @@ The following are the gradient descent equations:
 I used the CaffeNet pre-trained network that comes with CAFFE\@. This is pretty
 similar to AlexNet, but without the relighting data-augmentation and has a
 difference in the order of the pooling and normalization layers. The primary
-tweaks I made to CaffeNet are:
+tweaks I made to CaffeNet for getting a start on the Sunset dataset are:
 \begin{enumerate}
   \item Editing the last fully connected layer for the binary classification
     problem at hand. The initial architecture was for the 1000 class ImageNet
@@ -92,19 +103,26 @@ tweaks I made to CaffeNet are:
     multiplier for the weights of the modified layer.
 \end{enumerate}
 
-Using a very small number of training iterations, I quickly arrive to an
-accuracy of about $89\%$ (Fig.~\ref{fig:sunset_vanilla_learning}). After a
-longer duration of training, the rate stabilizes at $XX\%$
+Using CaffNet, I arrive to an accuracy of $93.3\%$
+(Fig.~\ref{fig:sunset_vanilla}), starting with a baseline accuracy of
+$46.67\%$. Some incorrectly classified images are also shown in
+Fig~\ref{fig:sunset_vanilla}
 
 \begin{figure}[h]
   \centering{}
-  \includegraphics[width=0.8\columnwidth]{images/sunset_vanilla_learning.png}
-  \caption{Training loss and testing loss and accuracy versus iterations for
-  the vanilla CaffeNet described above.}
-\label{fig:sunset_vanilla_learning}
+  \raisebox{-0.5\height}{
+  \includegraphics[width=0.3\columnwidth]{images/sunset_vanilla_learning.png}
+  }
+  \raisebox{-0.5\height}{
+    \includegraphics[width=0.6\textwidth]{images/sunset_incorrect1.png}
+  }
+  \caption{Left: Training loss and testing loss and accuracy versus iterations for
+  the vanilla CaffeNet described above. Right: Some misclassified images with
+  this network.}
+\label{fig:sunset_vanilla}
 \end{figure}
 
-I use the following schemes for data-augmentation
+I use the following schemes for data-augmentation: I increase the 
 
 \medskip
 \bibliographystyle{unsrt}

@@ -51,6 +51,22 @@ def lmdb_reader(lmdb_env):
         image = caffe.io.datum_to_array(data).astype(np.uint8)
         yield(key, image, label)
 
+#Crop data with last two axes interpreted as dimension to desired shape
+#Current uses center-crop
+#TODO msati3: Handle differing dimensions
+def crop(image, dataShape):
+    imageShape = image.shape
+    currentSize = np.array(imageShape[-2:])
+    cropSize = np.array(dataShape[-2:])
+    center = currentSize/2
+    centeredWindow = cropSize / 2
+    amountToRemove = center - centeredWindow
+    if currentSize[0] <= cropSize[0] or currentSize[1] <= cropSize[1]:
+        print "Request cropping of smaller image or equal to desired crop size"
+    return (image[:,amountToRemove[0]:-amountToRemove[0]+1,
+                   amountToRemove[1]:-amountToRemove[1]+1])
+
+
 #Inspired from caffe examples
 def showFilterGrid(filters, fGrayscale):
     tiledImage = (filters - filters.min()) / (filters.max() - filters.min())
